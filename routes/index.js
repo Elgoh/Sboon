@@ -12,4 +12,11 @@ router.get('/dashboard', ensureAuthenticated, (req, res) =>
   })
 );
 
+// Gameboard
+router.get('/gameboard', ensureAuthenticated, (req, res) =>
+  res.render('gameboard', {
+    user: req.user
+  })
+);
+
 module.exports = router;
