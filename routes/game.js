@@ -91,7 +91,7 @@ setInterval(() => {
         socket.emit('newPositions', pack)
     }
     
-}, 100);
+}, 30);
 
 module.exports = router
 
