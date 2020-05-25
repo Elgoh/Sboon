@@ -32,7 +32,7 @@ var Player = (name) => {
         pressingLeft: false,
         pressingUp: false,
         pressingDown: false,
-        maxSpeed: 3
+        maxSpeed: 2
     }
     self.updatePosition = function() {
         if (self.pressingRight) {
@@ -94,7 +94,7 @@ setInterval(() => {
         socket.emit('newPositions', pack)
     }
     
-}, 1000/100);
+}, 1000/40);
 
 module.exports = router
 
