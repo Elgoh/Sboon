@@ -5,7 +5,6 @@ const router = express.Router();
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
 // const server = require('http').createServer(app);
 // const io = require('socket.io')(server);
-
 // server.listen(process.env.PORT || 2000);
 const server = require('../app');
 const io = server.getIO();
@@ -92,7 +91,7 @@ setInterval(() => {
         socket.emit('newPositions', pack)
     }
     
-}, 1000/60);
+}, 1000/600);
 
 module.exports = router
 
