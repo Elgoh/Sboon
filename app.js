@@ -11,7 +11,14 @@ const app = express();
 //const {MongoClient} = require('mongodb')
 const bodyParser = require('body-parser');
 const http = require('http').createServer(app);
-const io = require('socket.io').listen(http);
+const io = require('socket.io')(http);
+io.on('connection', (socket) => {
+  console.log('a User connected');
+  socket.on('disconnect', () => console.log('User disconnected'));
+});
+module.exports.getIO = ()=>{
+  return io;
+}
 
 // Passport Config
 require('./config/passport')(passport);
@@ -29,7 +36,7 @@ mongoose
   .catch(err => console.log(err));
 
 // game add on
-const dd = mongoose.connection;
+//const dd = mongoose.connection;
 
 // EJS
 app.use(expressLayouts);
@@ -71,5 +78,5 @@ const PORT = process.env.PORT || 5000;
 
 http.listen(PORT, console.log(`Server started on port ${PORT}`));
 
-dd.on('error', error => console.error(error))
-dd.once('open', () => console.log('Connected to mongoose'))
+// dd.on('error', error => console.error(error));
+// dd.once('open', () => console.log('Connected to mongoose'));

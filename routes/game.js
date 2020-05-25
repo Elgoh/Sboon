@@ -3,10 +3,12 @@ const app = express();
 const router = express.Router();
 // const { handleError, ErrorHandler } = require('../models/error');
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
-const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+// const server = require('http').createServer(app);
+// const io = require('socket.io')(server);
 
-server.listen(process.env.PORT || 2000);
+// server.listen(process.env.PORT || 2000);
+const server = require('../app');
+const io = server.getIO();
 
 var currentName;
 const SOCKET_LIST = {};
@@ -90,7 +92,7 @@ setInterval(() => {
         socket.emit('newPositions', pack)
     }
     
-}, 1000/25);
+}, 1000/60);
 
 module.exports = router
 
