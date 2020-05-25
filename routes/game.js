@@ -32,7 +32,7 @@ var Player = (name) => {
         pressingLeft: false,
         pressingUp: false,
         pressingDown: false,
-        maxSpeed: 10
+        maxSpeed: 5
     }
     self.updatePosition = function() {
         if (self.pressingRight) {
