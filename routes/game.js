@@ -85,13 +85,16 @@ setInterval(() => {
             y:player.y,
             name: player.name
         })
-    }
-    for (var i in SOCKET_LIST) {
+        // added from for loop below
         var socket = SOCKET_LIST[i];
         socket.emit('newPositions', pack)
     }
+    // for (var i in SOCKET_LIST) {
+    //     var socket = SOCKET_LIST[i];
+    //     socket.emit('newPositions', pack)
+    // }
     
-}, 30);
+}, 20);
 
 module.exports = router
 
