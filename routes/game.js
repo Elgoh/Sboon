@@ -13,7 +13,6 @@ var currentName;
 const SOCKET_LIST = {};
 const PLAYER_LIST = {};
 
-
 // Gameboard
 router.get('/gameboard', ensureAuthenticated, (req, res) => {
     currentName = req.user.name
@@ -32,7 +31,7 @@ var Player = (name) => {
         pressingLeft: false,
         pressingUp: false,
         pressingDown: false,
-        maxSpeed: 2
+        maxSpeed: 3
     }
     self.updatePosition = function() {
         if (self.pressingRight) {
@@ -52,14 +51,14 @@ var Player = (name) => {
 }
 io.sockets.on('connection', function(socket){
     console.log('socket connection');
-    socket.id = Math.random()
+    socket.id = Math.random();
     socket.name = currentName;
     var player = Player(currentName);
     SOCKET_LIST[socket.id] = socket;
     PLAYER_LIST[socket.id] = player;
     socket.on('disconnect', function(){
-        delete SOCKET_LIST[socket.id]
-        delete PLAYER_LIST[socket.id]
+        delete SOCKET_LIST[socket.id];
+        delete PLAYER_LIST[socket.id];
     });
 
     socket.on('keyPress', function(data) {
