@@ -78,9 +78,7 @@ io.sockets.on('connection', (socket)=>{
     socket.on('new-user', name => {
         //console.log('hello');
         var finalMessage = name + " has join the game!";
-        for(var i in SOCKET_LIST) {
-            SOCKET_LIST[i].emit('addToChat', finalMessage);
-        }
+        socket.broadcast.emit('addToChat', finalMessage);
     });
 
     socket.on('keyPress', function(data) {

@@ -1,24 +1,11 @@
-<style>  
-    #ctx { 
-        float:left;  
-        width:70%; 
-        margin:5px;
-    } 
-    #chatbox{ 
-        float:right; 
-        width:25%; 
-        margin:5px;
-    }
-      
-</style>  
 <h1 class="text-center mt-4">LIE || DIE</h1>
 <p class="lead text-center mb-3">Say hi to your friends <%= user.name %>!</p>
-<canvas tabindex='1' id="ctx" style="border:1px solid #000000;"></canvas>
-<div id="chatbox">
+<canvas tabindex='1' id="ctx" width="750" height="500" style="border:1px solid #000000; float:left;"></canvas>
+<div id="chatbox" style="float:right; width:25%;">
         <div class="chat-sidebar">
             <h3><i class="fas fa-users"></i> Player's Chat</h3>
         </div>
-            <div id = "chat-text" style="float:top; height:200px; overflow-y:auto; overflow-x: visible;"></div>
+            <div id = "chat-text" style="float:top; height:200px; overflow-y:auto; overflow-x:auto; "></div>
         <div class="chat-form-container">
         <form id="chat-form">
             <input
@@ -31,7 +18,10 @@
             <button type="submit" id="chat-form"><i class="fas fa-paper-plane"></i> Send</button>
         </form>
         </div>
+        <a href="/dashboard" class="btn btn-secondary" style="margin-top: 10px;">Dashboard</a>
   </div>
+  
+
  
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -56,7 +46,6 @@
 
     socket.on('addToChat', (data) => {
         appendMessage(data);
-
     });
 
     function appendMessage(message) {
@@ -68,7 +57,7 @@
     }
 
     // user join message
-    socket.emit('new-user', playerName);
+    // socket.emit('new-user', playerName);
 
     //Message submit
     chatForm.onsubmit = (e) => {
@@ -114,7 +103,7 @@
     }, false);
     
     socket.on('newPositions', function(data) {
-        ctx.clearRect(0, 0, 500, 500);
+        ctx.clearRect(0, 0, 750, 500);
         for (var i = 0; i < data.length; i++) {
             ctx.fillText(data[i].name, data[i].x, data[i].y);
         }
@@ -122,5 +111,3 @@
     
 </script>
 
-
-<a href="/dashboard" class="btn btn-secondary" style="float:left; float:bottom;">Back</a>
