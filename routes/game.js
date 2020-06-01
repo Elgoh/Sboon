@@ -3,12 +3,9 @@ const app = express();
 const router = express.Router();
 // const { handleError, ErrorHandler } = require('../models/error');
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
-// const server = require('http').createServer(app);
-// const io = require('socket.io')(server);
-// server.listen(process.env.PORT || 2000);
 const server = require('../app');
 const io = server.getIO();
-
+var numberCount = 0; // initiate array from 0. Will have to change this when we get a huge data base or the array will get too big
 var currentName;
 const SOCKET_LIST = {};
 const PLAYER_LIST = {};
@@ -24,8 +21,8 @@ router.get('/gameboard', ensureAuthenticated, (req, res) => {
 
 var Player = (name) => {
     var self = {
-        x:550,
-        y:250,
+        x:50,
+        y:50,
         name: name,
         pressingRight: false,
         pressingLeft: false,
@@ -49,16 +46,41 @@ var Player = (name) => {
     }
     return self;
 }
-io.sockets.on('connection', function(socket){
-    console.log('socket connection');
-    socket.id = Math.random();
+
+io.sockets.on('connection', (socket)=>{
+    // console.log('socket connection');
+    //socket.id = Math.random(); //might cause trouble with same id
+    socket.id = numberCount;
+    numberCount = numberCount + 1;
     socket.name = currentName;
     var player = Player(currentName);
     SOCKET_LIST[socket.id] = socket;
     PLAYER_LIST[socket.id] = player;
+
     socket.on('disconnect', function(){
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
+    });
+
+    // code to send message
+    socket.on('sendMsgToServer', function(data) {
+        //console.log('hello');
+        var name = data.name;
+        var message = data.msg;
+        var finalMessage = name + ": " + message;
+        socket.broadcast.emit('addToChat', finalMessage);
+        // for(var i in SOCKET_LIST) {
+        //     SOCKET_LIST[i].emit('addToChat', finalMessage);
+        // }
+    });
+
+    // broadcast user joined
+    socket.on('new-user', name => {
+        //console.log('hello');
+        var finalMessage = name + " has join the game!";
+        for(var i in SOCKET_LIST) {
+            SOCKET_LIST[i].emit('addToChat', finalMessage);
+        }
     });
 
     socket.on('keyPress', function(data) {

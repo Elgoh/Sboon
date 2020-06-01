@@ -12,10 +12,26 @@ const app = express();
 const bodyParser = require('body-parser');
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+
 io.on('connection', (socket) => {
   console.log('a User connected');
-  socket.on('disconnect', () => console.log('User disconnected'));
+
+  //Welcome current user
+  socket.emit('message', 'Welcome to Lie || Die');
+
+  // Broadcast when a user connects
+  socket.broadcast.emit('message', 'A user has joined the game');
+
+  socket.on('disconnect', () => {
+    io.emit('message', 'A user has left the game');
+  });
+
+  //listen for chat message
+  // socket.on('new-user', name => {
+  //   io.emit('message', msg);
+  // });
 });
+
 
 module.exports.getIO = ()=>{
   return io;

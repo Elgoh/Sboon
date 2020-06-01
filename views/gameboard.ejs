@@ -1,14 +1,92 @@
-<h1 class="text-center mt-4">GAME BABY</h1>
-<p class="lead text-center mb-3">Go for it <%= user.name %>!</p>
-<canvas id="ctx" width="1100" height="500" style="border:1px solid #000000;"></canvas>
+<style>  
+    #ctx { 
+        float:left;  
+        width:70%; 
+        margin:5px;
+    } 
+    #chatbox{ 
+        float:right; 
+        width:25%; 
+        margin:5px;
+    }
+      
+</style>  
+<h1 class="text-center mt-4">LIE || DIE</h1>
+<p class="lead text-center mb-3">Say hi to your friends <%= user.name %>!</p>
+<canvas tabindex='1' id="ctx" style="border:1px solid #000000;"></canvas>
+<div id="chatbox">
+        <div class="chat-sidebar">
+            <h3><i class="fas fa-users"></i> Player's Chat</h3>
+        </div>
+            <div id = "chat-text" style="float:top; height:200px; overflow-y:auto; overflow-x: visible;"></div>
+        <div class="chat-form-container">
+        <form id="chat-form">
+            <input
+            id="chat-input"
+            type="text"
+            placeholder="Enter Message"
+            required
+            autocomplete="off"
+            />
+            <button type="submit" id="chat-form"><i class="fas fa-paper-plane"></i> Send</button>
+        </form>
+        </div>
+  </div>
+ 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    var canvas = document.getElementById("ctx");
-    var ctx = canvas.getContext("2d");
+    const ctx = document.getElementById("ctx").getContext("2d");
+    const ctxx = document.getElementById("ctx");
     ctx.font = '30px lucida';
-    var socket = io();
+    const socket = io();
 
-    document.onkeydown = function(event) {
+    //chatbox code
+    var chatText = document.getElementById("chat-text");
+    var chatForm = document.getElementById("chat-form");
+    var chatInput = document.getElementById("chat-input");
+    // var chatMessages = document.querySelector('.chat-messages');
+    var playerName = "<%= user.name %>";
+
+    // socket.on('addToChat', function(data) {
+    //     chatText.innerHTML += '<div>' + data + '</div>';
+        
+    //     // auto scroll down
+    //     chatMessages.scrollTop = chatMessages.scrollHeight;
+    // });
+
+    socket.on('addToChat', (data) => {
+        appendMessage(data);
+
+    });
+
+    function appendMessage(message) {
+        const messageElement = document.createElement('div');
+        messageElement.innerText = message;
+        chatText.append(messageElement);
+        // auto scroll down
+        chatText.scrollTop = chatText.scrollHeight;
+    }
+
+    // user join message
+    socket.emit('new-user', playerName);
+
+    //Message submit
+    chatForm.onsubmit = (e) => {
+        e.preventDefault();
+
+        socket.emit('sendMsgToServer', {
+            msg: chatInput.value,
+            name: playerName
+        });
+
+        chatInput.value = '';
+    }
+    
+
+    // chatbox code ends here
+
+    ctxx.addEventListener('keydown', function(event) {
+        event.preventDefault();
         if (event.keyCode === 68) { // right
             socket.emit('keyPress', {input: 'right', state: true});
         } else if (event.keyCode === 83) { // down
@@ -17,11 +95,12 @@
             socket.emit('keyPress', {input: 'left', state: true});
         } else if (event.keyCode === 87) { // up
             socket.emit('keyPress', {input: 'up', state: true});
-        } else {
-
+        } else {            
         }
-    };
-    document.onkeyup = function(event) {
+    }, false);
+    
+    ctxx.addEventListener('keyup', function(event) {
+        event.preventDefault();
         if (event.keyCode === 68) { // right
             socket.emit('keyPress', {input: 'right', state: false});
         } else if (event.keyCode === 83) { // down
@@ -31,16 +110,17 @@
         } else if (event.keyCode === 87) { // up
             socket.emit('keyPress', {input: 'up', state: false});
         } else {
-
         }
-    };
+    }, false);
+    
     socket.on('newPositions', function(data) {
-        ctx.clearRect(0, 0, 1100, 500);
+        ctx.clearRect(0, 0, 500, 500);
         for (var i = 0; i < data.length; i++) {
             ctx.fillText(data[i].name, data[i].x, data[i].y);
         }
     });
     
 </script>
- 
-<a href="/dashboard" class="btn btn-secondary">Back</a>
+
+
+<a href="/dashboard" class="btn btn-secondary" style="float:left; float:bottom;">Back</a>
