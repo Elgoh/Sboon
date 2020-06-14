@@ -27,9 +27,10 @@
 <script>
     const ctx = document.getElementById("ctx").getContext("2d");
     const ctxx = document.getElementById("ctx");
-    ctx.font = '30px lucida';
+    ctx.font = '20px lucida';
     const socket = io();
-
+    const WIDTH = 750;
+    const HEIGHT = 500;
     //chatbox code
     var chatText = document.getElementById("chat-text");
     var chatForm = document.getElementById("chat-form");
@@ -71,19 +72,16 @@
         chatInput.value = '';
     }
     
-
-    // chatbox code ends here
-
     ctxx.addEventListener('keydown', function(event) {
         event.preventDefault();
         if (event.keyCode === 68) { // right
-            socket.emit('keyPress', {input: 'right', state: true});
+            socket.emit('keyPress', {inputId: 'right', state: true});
         } else if (event.keyCode === 83) { // down
-            socket.emit('keyPress', {input: 'down', state: true});
+            socket.emit('keyPress', {inputId: 'down', state: true});
         } else if (event.keyCode === 65) { // left
-            socket.emit('keyPress', {input: 'left', state: true});
+            socket.emit('keyPress', {inputId: 'left', state: true});
         } else if (event.keyCode === 87) { // up
-            socket.emit('keyPress', {input: 'up', state: true});
+            socket.emit('keyPress', {inputId: 'up', state: true});
         } else {            
         }
     }, false);
@@ -91,23 +89,120 @@
     ctxx.addEventListener('keyup', function(event) {
         event.preventDefault();
         if (event.keyCode === 68) { // right
-            socket.emit('keyPress', {input: 'right', state: false});
+            socket.emit('keyPress', {inputId: 'right', state: false});
         } else if (event.keyCode === 83) { // down
-            socket.emit('keyPress', {input: 'down', state: false});
+            socket.emit('keyPress', {inputId: 'down', state: false});
         } else if (event.keyCode === 65) { // left
-            socket.emit('keyPress', {input: 'left', state: false});
+            socket.emit('keyPress', {inputId: 'left', state: false});
         } else if (event.keyCode === 87) { // up
-            socket.emit('keyPress', {input: 'up', state: false});
+            socket.emit('keyPress', {inputId: 'up', state: false});
         } else {
         }
     }, false);
     
-    socket.on('newPositions', function(data) {
-        ctx.clearRect(0, 0, 750, 500);
-        for (var i = 0; i < data.length; i++) {
-            ctx.fillText(data[i].name, data[i].x, data[i].y);
+    //img code
+    var Img = {};
+    Img.player = new Image();
+    Img.player.src = '/img/mew.png';
+    // Img.map = new Image();
+    // Img.map.src = '/img/map.png';
+    
+
+    //game
+    var Player = function(initPack){
+        var self = {};
+        self.id = initPack.id;
+        self.name = initPack.name;
+        self.x = initPack.x;
+        self.y = initPack.y;
+        self.draw = function(){
+            var x = self.x - Player.list[selfId].x + WIDTH/2;
+			var y = self.y - Player.list[selfId].y + HEIGHT/2;
+			
+			var width = Img.player.width/10; //63
+            var height = Img.player.height/10; //50
+			
+			ctx.drawImage(Img.player,
+				0,0,Img.player.width,Img.player.height,
+				x-width/2,y-height/2,width,height);
+            
+            ctx.fillText(self.name, x - width/4, y + height *9/10); 
         }
+        Player.list[self.id] = self;
+        return self;
+    }
+    Player.list = {};
+
+    var selfId = null;
+
+    //init
+    socket.on('init',function(data){
+        if(data.selfId) {
+            selfId = data.selfId;
+        }
+		//{ player : [{id:123,name:'Bob',x:0,y:0},{id:1,number:'John',x:0,y:0}], bullet: []}
+        for(var i = 0 ; i < data.player.length; i++){ 
+            new Player(data.player[i]);            
+		}
+	});
+    //update
+    socket.on('update',function(data){
+		//{ player : [{id:123,x:0,y:0},{id:1,x:0,y:0}], bullet: []}
+		for(var i = 0 ; i < data.player.length; i++){
+			var pack = data.player[i];
+			var p = Player.list[pack.id];
+			if(p){
+				if(pack.x !== undefined)
+					p.x = pack.x;
+				if(pack.y !== undefined)
+					p.y = pack.y;
+			}
+		}
+	});
+
+    //remove
+    socket.on('remove',function(data){
+		//{player:[12323],bullet:[12323,123123]}
+		for(var i = 0 ; i < data.player.length; i++){
+			delete Player.list[data.player[i]];
+		}
     });
     
+    setInterval(function(){
+        if(!selfId) {
+            return;
+        }
+        ctx.clearRect(0,0,750,500);
+        drawMap.draw(); //added .draw()
+        for(var i in Player.list)
+			Player.list[i].draw();
+    },1000/60);
+    
+    // const drawMap = function() {
+    //     var x = WIDTH/2 - Player.list[selfId].x;
+    //     var y = HEIGHT/2 - Player.list[selfId].y;
+    //     ctx.drawImage(Img.map,x,y);
+    // }
+    //new code that replaces drawMap function
+    Maps = function(id, imgsrc, width, height) {
+        var self = {
+            id:id,
+            image:new Image(),
+            width:width,
+            height:height,
+        }
+
+        self.image.src = imgsrc;
+
+        self.draw = function() {
+        var x = WIDTH/2 - Player.list[selfId].x;
+        var y = HEIGHT/2 - Player.list[selfId].y;
+        ctx.drawImage(self.image,x,y);
+        }
+        return self;
+    }
+    drawMap = Maps('field', '/img/map.png', 750,500);
+    //new code ends
+
 </script>
 

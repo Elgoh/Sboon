@@ -15,6 +15,7 @@ const io = require('socket.io')(http);
 
 io.on('connection', (socket) => {
   console.log('a User connected');
+  
 
   //Welcome current user
   socket.emit('message', 'Welcome to Lie || Die');
@@ -32,6 +33,8 @@ io.on('connection', (socket) => {
   // });
 });
 
+//img source
+app.use('/img', express.static(__dirname + '/img'));
 
 module.exports.getIO = ()=>{
   return io;
