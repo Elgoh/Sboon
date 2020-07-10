@@ -8,10 +8,37 @@ const session = require('express-session');
 const app = express();
 
 // game add on
-const {MongoClient} = require('mongodb')
+//const {MongoClient} = require('mongodb')
 const bodyParser = require('body-parser');
-const http = require('http').Server(app);
-const io = require('socket.io').listen(http, {});
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+
+io.on('connection', (socket) => {
+  console.log('a User connected');
+  
+
+  //Welcome current user
+  socket.emit('message', 'Welcome to Lie || Die');
+
+  // Broadcast when a user connects
+  socket.broadcast.emit('message', 'A user has joined the game');
+
+  socket.on('disconnect', () => {
+    io.emit('message', 'A user has left the game');
+  });
+
+  //listen for chat message
+  // socket.on('new-user', name => {
+  //   io.emit('message', msg);
+  // });
+});
+
+//img source
+app.use('/img', express.static(__dirname + '/img'));
+
+module.exports.getIO = ()=>{
+  return io;
+}
 
 // Passport Config
 require('./config/passport')(passport);
@@ -29,7 +56,7 @@ mongoose
   .catch(err => console.log(err));
 
 // game add on
-const dd = mongoose.connection;
+//const dd = mongoose.connection;
 
 // EJS
 app.use(expressLayouts);
@@ -65,11 +92,11 @@ app.use(function(req, res, next) {
 // Routes
 app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
-// app.use('/game', require('./routes/game.js'));
+app.use('/game', require('./routes/game.js'));
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, console.log(`Server started on port ${PORT}`));
+http.listen(PORT, console.log(`Server started on port ${PORT}`));
 
-dd.on('error', error => console.error(error))
-dd.once('open', () => console.log('Connected to mongoose'))
+// dd.on('error', error => console.error(error));
+// dd.once('open', () => console.log('Connected to mongoose'));

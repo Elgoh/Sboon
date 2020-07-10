@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
-
 // Load User model
 const User = require('../models/User');
 const { forwardAuthenticated } = require('../config/auth');
@@ -93,15 +92,5 @@ router.get('/logout', (req, res) => {
   req.flash('success_msg', 'You are logged out');
   res.redirect('/users/login');
 });
-
-// Game handle
-// router.post('/gameboard', (req, res, next) => {
-//   passport.authenticate('local', {
-//     successRedirect: '/gameboard',
-//     failureRedirect: '/users/login',
-//     failureFlash: true
-//   })
-//   (req, res, next);
-// });
 
 module.exports = router;

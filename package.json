@@ -9,7 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Realtime chat and game",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "bcryptjs": "^2.4.3",
